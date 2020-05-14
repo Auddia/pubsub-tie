@@ -26,11 +26,6 @@ Gem::Specification.new do |spec|
   end
   
   spec.files = Dir['lib/**/*.rb']
-  # spec.files         = ['lib/pubsubtie.rb', 
-  #                       'lib/pubsubtie/events.rb',
-  #                       'lib/pubsubtie/publisher.rb',
-  #                       'lib/pubsubtie/version.rb', 
-  #                       'lib/pubsubtie/railtie.rb']
   spec.require_paths = ["lib"]
 
   spec.add_dependency 'google-cloud-pubsub', '>=1.6.0'

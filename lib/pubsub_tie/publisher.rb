@@ -20,11 +20,11 @@ module PubSubTie
         # publish(message(data, resource), publish_time: Time.current.utc)
         publish_async(message(data, resource), 
                       publish_time: Time.current.utc) do |result|
-        unless result.succeeded?
-          Rails.logger.error(
-            "Failed to publish #{data} to #{topic_name} on #{resource} due to #{result.error}")
+          unless result.succeeded?
+            Rails.logger.error(
+              "Failed to publish #{data} to #{topic_name} on #{resource} due to #{result.error}")
+          end
         end
-      end
     end
 
   private

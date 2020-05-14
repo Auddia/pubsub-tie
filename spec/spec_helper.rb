@@ -1,5 +1,6 @@
 require "bundler/setup"
 require "pubsub_tie"
+require 'pathname'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -12,3 +13,9 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 end
+
+# Require supporting files
+root = Pathname.new(File.expand_path(File.join(File.dirname(__FILE__), '..')))
+Dir[root.join('spec/support/**/*.rb')].each {|f| require f}
+
+include RspecPubSubTieHelper
