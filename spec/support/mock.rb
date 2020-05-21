@@ -1,16 +1,16 @@
 module PubSubTie
   module Google
     module PubSub
-      class Mock
+      module Mock
+        extend self
+
         def topic(name)
-          Topic.new(name)
+          Topic
         end
       end
 
-      class Topic
-        def initialize(name)
-          @name = name
-        end
+      module Topic
+        extend self
 
         def publish_async(json, args={}, &block)
           yield(Result)

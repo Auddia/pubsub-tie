@@ -28,7 +28,7 @@ module PubSubTie
 
   def configure_publisher
     config = YAML.load_file(File.join(app_root, 'config', 'gcp.yml'))[env]
-    @publisher = Publisher.new(config)
+    Publisher.configure(config)
   end
 
   def configure_events
@@ -37,7 +37,7 @@ module PubSubTie
   end
 
   def publish(topic, data, resource: nil)
-    @publisher.publish(topic, data, resource)
+    Publisher.publish(topic, data, resource)
   end
 end
 

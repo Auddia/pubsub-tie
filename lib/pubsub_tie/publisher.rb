@@ -1,12 +1,14 @@
 require 'google/cloud/pubsub'
 
 module PubSubTie
-  class Publisher
-    def initialize(config)
-      @pubsub = configure(config)
-    end
+  module Publisher
+    extend self
 
     def configure(config)
+      @pubsub = google_pubsub(config)
+    end
+
+    def google_pubsub(config)
       keyfile = File.join(PubSubTie.app_root, 'config', config['keyfile'])
       creds = Google::Cloud::PubSub::Credentials.new keyfile
 
@@ -18,8 +20,8 @@ module PubSubTie
       @pubsub.
         topic(Events.name topic_sym).
         # publish(message(data, resource), publish_time: Time.current.utc)
-        publish_async(message(data, resource), 
-                      publish_time: Time.current.utc) do |result|
+        publish_async(message(validate_data(topic_sym, data), resource),
+                      publish_time: Time.now.utc) do |result|
           unless result.succeeded?
             Rails.logger.error(
               "Failed to publish #{data} to #{topic_name} on #{resource} due to #{result.error}")
@@ -40,11 +42,11 @@ module PubSubTie
           "Missing event required args for #{sym}: #{missing}")
       end
 
-      data.slice(*(Event.required(sym) + Event.optional(sym)))
+      data.slice(*(Events.required(sym) + Events.optional(sym)))
     end
 
     def missing_required(sym, data)
-      Event.required(sym) - data.keys
+      Events.required(sym) - data.keys
     end
   end
 end

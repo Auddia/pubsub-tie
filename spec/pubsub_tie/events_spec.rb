@@ -10,7 +10,7 @@ module PubSubTie
                       'required' =>['req1', 'req2'],
                       'optional' =>['opt1']}] } }
 
-    describe "#name" do
+    describe ".name" do
       context "when the event for the symbol is defined" do
         it "preprends the application prefix" do
           expect(Events.name(:event_zero)).to eq('test-event_zero')
