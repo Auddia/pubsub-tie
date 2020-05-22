@@ -19,7 +19,7 @@ module PubSubTie
     def publish(topic_sym, data, resource)
       @pubsub.
         topic(Events.name topic_sym).
-        # publish(message(data, resource), publish_time: Time.current.utc)
+        # publish(message(data, resource), publish_time: Time.now.utc)
         publish_async(message(validate_data(topic_sym, data), resource),
                       publish_time: Time.now.utc) do |result|
           unless result.succeeded?
