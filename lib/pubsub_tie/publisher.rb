@@ -24,7 +24,7 @@ module PubSubTie
                       publish_time: Time.now.utc) do |result|
           unless result.succeeded?
             Rails.logger.error(
-              "Failed to publish #{data} to #{topic_name} on #{resource} due to #{result.error}")
+              "Failed to publish #{data} to #{topic_sym} on #{resource} due to #{result.error}")
           end
         end
     end
