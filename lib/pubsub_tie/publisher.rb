@@ -29,6 +29,21 @@ module PubSubTie
         end
     end
 
+    def batch(topic_sym, messages, resource)
+      topic = @pubsub.
+          topic(Events.name topic_sym)
+      messages.each do |data|
+        topic.publish_async(message(validate_data(topic_sym, data), resource),
+                            publish_time: Time.now.utc) do |result|
+          unless result.succeeded?
+            Rails.logger.error(
+                "Failed to publish #{data} to #{topic_sym} on #{data} due to #{result.error}")
+          end
+        end
+      end
+      topic.async_publisher.stop.wait!
+    end
+
   private
     def message(data, resource)
       # TODO: embed resource in message

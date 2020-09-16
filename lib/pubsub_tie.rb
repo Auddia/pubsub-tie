@@ -39,6 +39,10 @@ module PubSubTie
   def publish(topic, data, resource: nil)
     Publisher.publish(topic, data, resource)
   end
+
+  def batch(topic, data, resource: nil)
+    Publisher.batch(topic, data, resource)
+  end
 end
 
 require 'pubsub_tie/railtie' if defined? Rails::Railtie
