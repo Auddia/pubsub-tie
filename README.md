@@ -4,6 +4,7 @@ Basic hook for Google PubSub to enforce a number of auto-imposed basic rules on 
 1. Only white-listed events may be published
 2. Enforce presence of required fields on events
 3. Exclude fields nor required or optional
+4. Check field type
 
 ## Installation
 ```shell
@@ -37,12 +38,16 @@ events:
   - name: evt_name_0
     summary: 'what happened at 0'
     required:
-      - one_required_field
-      - another_required_field
+      - name: one_required_field
+        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
+      - name: another_required_field
+        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
     optional:
-      - one_optional_field
+      - name: one_optional_field
+        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
   - name: evt_name_1
     summary: 'what happened at 1'
     required:
-      - only_required_field
+      - name: only_required_field
+        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
 ```
