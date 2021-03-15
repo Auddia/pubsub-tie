@@ -10,16 +10,16 @@ module PubSubTie
                       'required' =>['req1', 'req2'],
                       'optional' =>['opt1']}] } }
 
-    describe ".name" do
+    describe ".full_name" do
       context "when the event for the symbol is defined" do
         it "preprends the application prefix" do
-          expect(Events.name(:event_zero)).to eq('test-event_zero')
+          expect(Events.full_name(:event_zero)).to eq('test-event_zero')
         end
       end
 
       context "when the event for the symbol is not defined" do
         it "raises a KeyError" do
-          expect {Events.name(:bad_name)}.to raise_error(KeyError)
+          expect {Events.full_name(:bad_name)}.to raise_error(KeyError)
         end
       end
     end
