@@ -51,3 +51,6 @@ events:
       - name: only_required_field
         type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
 ```
+
+## References
+* [Releasing the gem](https://bundler.io/v1.16/guides/creating_gem.html#releasing-the-gem)
