@@ -3,8 +3,8 @@ Basic hook for Google PubSub to enforce a number of auto-imposed basic rules on 
 
 1. Only white-listed events may be published
 2. Enforce presence of required fields on events
-3. Exclude fields nor required or optional
-4. Check field type
+3. Exclude fields nor required, optional, or repeated (array-like).
+4. Check field type (all elements in a repeated field)
 
 ## Installation
 ```shell
@@ -44,6 +44,9 @@ events:
         type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
     optional:
       - name: one_optional_field
+        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
+    repeated:
+      - name: one_array_like_field
         type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
   - name: evt_name_1
     summary: 'what happened at 1'
