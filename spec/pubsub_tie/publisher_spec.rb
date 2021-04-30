@@ -9,7 +9,9 @@ module PubSubTie
                       'required' => [{'name' => 'req1', 'type' => 'INT'},
                                      {'name' => 'event_name', 'type' => 'STRING'}, 
                                      {'name' => 'event_time', 'type' => 'TIMESTAMP'}],
-                      'optional' => [{'name' => 'opt1', 'type' => 'INT'}] }] } }
+                      'optional' => [{'name' => 'opt1', 'type' => 'INT'}], 
+                      'repeated' => [{'name' => 'rep1', 'type' => 'INT'}] 
+                    }] } }
 
     before(:each) do
       Events.configure(config)
@@ -73,6 +75,46 @@ module PubSubTie
                 to receive(:publish_async).
                 with(augmented.to_json, anything)
               subject
+            end
+          end
+
+          context 'with optional attributes' do
+            let(:data) { {req1: req1, opt1: opt1} }
+
+            context 'with a bad type' do
+              let(:opt1) { 'not int' }
+
+              it "raises an ArgumentError" do
+                expect { subject }.to raise_error(ArgumentError)
+              end
+            end
+
+            context 'with a good type' do
+              let(:opt1) { 1 }
+
+              it "works" do
+                expect { subject }.not_to raise_error
+              end
+            end
+          end
+
+          context 'with repeated (array) attributes' do
+            let(:data) { {req1: req1, rep1: rep1} }
+
+            context 'with a bad type' do
+              let(:rep1) { [1, 'bad'] }
+
+              it "raises an ArgumentError" do
+                expect { subject }.to raise_error(ArgumentError)
+              end
+            end
+
+            context 'with a good type' do
+              let(:rep1) { [1, 2] }
+
+              it "works" do
+                expect { subject }.not_to raise_error
+              end
             end
           end
         end

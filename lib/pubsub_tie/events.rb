@@ -8,7 +8,9 @@ module PubSubTie
       evs = config['events'].map{|e| e['name']}
       @events = Hash[evs.map(&:to_sym).zip(config['events'])]
       @events.each do |k, evt|
-        fields = (evt['required'] || []) + (evt['optional'] || [])
+        fields = (evt['required'] || []) + 
+            (evt['optional'] || []) +
+            (evt['repeated'] || [])
         evt['fields'] = Hash[ fields.map {|f| [f['name'], f['type']]} ]
       end
     end
@@ -28,7 +30,11 @@ module PubSubTie
     end
 
     def optional(sym)
-      field_names(sym, 'optional')
+      field_names(sym, 'optional') + repeated(sym)
+    end
+
+    def repeated(sym)
+      field_names(sym, 'repeated')
     end
 
     def types(sym)

@@ -79,26 +79,33 @@ module PubSubTie
     end
 
     def validate_types(sym, data)
-      types = Events.types(sym)
-
       data.each do |field, val|
-        case val
-        when String
-          bad_type(field, data) unless types[field.to_s] == "STRING" 
-        when Integer
-          bad_type(field, data) unless ["INT", "FLOAT"].include? types[field.to_s]
-        when Numeric
-          bad_type(field, data) unless types[field.to_s] == "FLOAT"
-        when Time
-          bad_type(field, data) unless types[field.to_s] == "TIMESTAMP"
-        when DateTime
-          bad_type(field, data) unless types[field.to_s] == "DATETIME"
-        else
-          bad_type(field, data)
-        end
+        validate_type(field, val, data, sym)
       end
 
       data
+    end
+
+    def validate_type(field, val, data, sym)
+      types = Events.types(sym)
+
+      case val
+      when String
+        bad_type(field, data) unless types[field.to_s] == "STRING" 
+      when Integer
+        bad_type(field, data) unless ["INT", "FLOAT"].include? types[field.to_s]
+      when Numeric
+        bad_type(field, data) unless types[field.to_s] == "FLOAT"
+      when Time
+        bad_type(field, data) unless types[field.to_s] == "TIMESTAMP"
+      when DateTime
+        bad_type(field, data) unless types[field.to_s] == "DATETIME"
+      when Array
+        bad_type(field, data) unless Events.repeated(sym).include? field
+        val.each {|elem| validate_type(field, elem, data, sym) }
+      else
+        bad_type(field, data)
+      end
     end
 
     def bad_type(field, data)
