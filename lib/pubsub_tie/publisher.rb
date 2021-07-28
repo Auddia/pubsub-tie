@@ -93,9 +93,9 @@ module PubSubTie
       when String
         bad_type(field, data) unless types[field.to_s] == "STRING" 
       when Integer
-        bad_type(field, data) unless ["INT", "FLOAT"].include? types[field.to_s]
+        bad_type(field, data) unless ["INT", "FLOAT", "INT64", "SMALLINT", "INTEGER", "BIGINT", "TINYINT", "BYTEINT"].include? types[field.to_s]
       when Numeric
-        bad_type(field, data) unless types[field.to_s] == "FLOAT"
+        bad_type(field, data) unless ["DECIMAL", "BIGDECIMAL", "FLOAT", "FLOAT64"].include? types[field.to_s]
       when Time
         bad_type(field, data) unless types[field.to_s] == "TIMESTAMP"
       when DateTime
