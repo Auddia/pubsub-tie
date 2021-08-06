@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    pubsub_tie (1.1.0)
+    pubsub_tie (1.2.0)
       activesupport
       google-cloud-pubsub (~> 1.6)
 
