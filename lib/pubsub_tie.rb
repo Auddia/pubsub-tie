@@ -23,7 +23,7 @@ module PubSubTie
   end
 
   def env
-    @env ||= defined?(Rails) ? Rails.env : ENV["ENV"] || 'developent'
+    @env ||= defined?(Rails) ? Rails.env : ENV["ENV"] || 'development'
   end
 
   def configure_publisher
