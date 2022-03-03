@@ -23,7 +23,7 @@ module PubSubTie
   end
 
   def env
-    @env ||= defined?(Rails) ? Rails.env : ENV["ENV"] || 'developent'
+    @env ||= defined?(Rails) ? Rails.env : ENV["ENV"] || 'development'
   end
 
   def configure_publisher
@@ -32,7 +32,7 @@ module PubSubTie
   end
 
   def configure_events
-    config = YAML.load_file(File.join(app_root, 'config', 'events.yml'))
+    config = YAML.load_file(File.join(app_root, 'config', 'events.yml'))[env]
     Events.configure(config)
   end
 
