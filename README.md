@@ -39,20 +39,20 @@ events:
     summary: 'what happened at 0'
     required:
       - name: one_required_field
-        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
+        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME|BOOL
       - name: another_required_field
-        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
+        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME|BOOL
     optional:
       - name: one_optional_field
-        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
+        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME|BOOL
     repeated:
       - name: one_array_like_field
-        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
+        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME|BOOL
   - name: evt_name_1
     summary: 'what happened at 1'
     required:
       - name: only_required_field
-        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME
+        type: STRING|INT|FLOAT|TIMESTAMP|DATETIME|BOOL
 ```
 
 ## References

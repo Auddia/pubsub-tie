@@ -92,6 +92,10 @@ module PubSubTie
       case val
       when String
         bad_type(field, data) unless types[field.to_s] == "STRING" 
+      when TrueClass
+        bad_type(field, data) unless types[field.to_s] == "BOOL" 
+      when FalseClass
+        bad_type(field, data) unless types[field.to_s] == "BOOL" 
       when Integer
         bad_type(field, data) unless ["INT", "FLOAT", "INT64", "SMALLINT", "INTEGER", "BIGINT", "TINYINT", "BYTEINT"].include? types[field.to_s]
       when Numeric
