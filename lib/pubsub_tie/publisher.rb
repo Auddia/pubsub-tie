@@ -104,6 +104,9 @@ module PubSubTie
         bad_type(field, data) unless types[field.to_s] == "TIMESTAMP"
       when DateTime
         bad_type(field, data) unless types[field.to_s] == "DATETIME"
+      #  since Ruby doesn't have a Boolean
+      when(FalseClass || TrueClass)
+        bad_type(field, data) unless types[field.to_s] == "BOOL"
       when Array
         bad_type(field, data) unless Events.repeated(sym).include? field
         val.each {|elem| validate_type(field, elem, data, sym) }
