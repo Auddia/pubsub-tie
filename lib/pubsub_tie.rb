@@ -27,12 +27,12 @@ module PubSubTie
   end
 
   def configure_publisher
-    config = YAML.load_file(File.join(app_root, 'config', 'gcp.yml'))[env]
+    config = YAML.load_file(File.join(app_root, 'config', 'gcp.yml'), aliases: true)[env]
     Publisher.configure(config)
   end
 
   def configure_events
-    config = YAML.load_file(File.join(app_root, 'config', 'events.yml'))[env]
+    config = YAML.load_file(File.join(app_root, 'config', 'events.yml'), aliases: true)[env]
     Events.configure(config)
   end
 
