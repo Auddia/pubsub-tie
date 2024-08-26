@@ -28,10 +28,10 @@ Gem::Specification.new do |spec|
   spec.files = Dir['lib/**/*.rb']
   spec.require_paths = ["lib"]
 
-  spec.add_dependency 'google-cloud-pubsub', '~> 1.6'
+  spec.add_dependency 'google-cloud-pubsub', '~> 2.19'
   spec.add_dependency "activesupport"
 
   spec.add_development_dependency "rake", '~> 13.0'
-  spec.add_development_dependency "bundler", '~> 2.1.4'
+  spec.add_development_dependency "bundler", '~> 2.5.6'
   spec.add_development_dependency "rspec", '~> 3.0'
 end
