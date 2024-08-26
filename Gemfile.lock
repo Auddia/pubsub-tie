@@ -3,7 +3,7 @@ PATH
   specs:
     pubsub_tie (1.4.0)
       activesupport
-      google-cloud-pubsub (~> 2.19)
+      google-cloud-pubsub (~> 2.2)
 
 GEM
   remote: https://rubygems.org/
