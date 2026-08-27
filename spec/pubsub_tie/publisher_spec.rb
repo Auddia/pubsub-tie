@@ -120,5 +120,81 @@ module PubSubTie
         end
       end
     end
+
+    describe ".google_pubsub" do
+      before do
+        allow(PubSubTie::Publisher).to receive(:google_pubsub).and_call_original
+      end
+
+      context "when keyfile is specified and non-empty" do
+        let(:config_with_keyfile) { { 'project_id' => 'my-proj', 'keyfile' => 'service-account.json' } }
+        let(:fake_creds) { double('Credentials') }
+
+        it "initializes PubSub with explicit credentials from keyfile" do
+          expected_path = File.join(PubSubTie.app_root, 'config', 'service-account.json')
+          expect(::Google::Cloud::PubSub::Credentials).to receive(:new).with(expected_path).and_return(fake_creds)
+          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'my-proj', credentials: fake_creds)
+
+          Publisher.google_pubsub(config_with_keyfile)
+        end
+
+        it "accepts project key as fallback for project_id" do
+          expected_path = File.join(PubSubTie.app_root, 'config', 'service-account.json')
+          expect(::Google::Cloud::PubSub::Credentials).to receive(:new).with(expected_path).and_return(fake_creds)
+          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'legacy-proj', credentials: fake_creds)
+
+          Publisher.google_pubsub({ 'project' => 'legacy-proj', 'keyfile' => 'service-account.json' })
+        end
+      end
+
+      context "when keyfile is nil or empty (keyless ADC mode)" do
+        let(:fake_pubsub) { double('PubSub') }
+
+        it "initializes PubSub without credentials when keyfile is nil" do
+          expect(::Google::Cloud::PubSub::Credentials).not_to receive(:new)
+          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'my-proj').and_return(fake_pubsub)
+
+          Publisher.google_pubsub({ 'project_id' => 'my-proj', 'keyfile' => nil })
+        end
+
+        it "initializes PubSub without credentials when keyfile is empty string" do
+          expect(::Google::Cloud::PubSub::Credentials).not_to receive(:new)
+          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'my-proj').and_return(fake_pubsub)
+
+          Publisher.google_pubsub({ 'project_id' => 'my-proj', 'keyfile' => '   ' })
+        end
+
+        it "initializes PubSub without credentials when keyfile key is omitted" do
+          expect(::Google::Cloud::PubSub::Credentials).not_to receive(:new)
+          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'my-proj').and_return(fake_pubsub)
+
+          Publisher.google_pubsub({ 'project_id' => 'my-proj' })
+        end
+
+        it "falls back to 'cfr-projects' if project_id is not in config and ENV is not set" do
+          allow(ENV).to receive(:[]).with('GOOGLE_CLOUD_PROJECT').and_return(nil)
+          expect(::Google::Cloud::PubSub::Credentials).not_to receive(:new)
+          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'cfr-projects').and_return(fake_pubsub)
+
+          Publisher.google_pubsub({})
+        end
+
+        it "uses ENV['GOOGLE_CLOUD_PROJECT'] if set and config has no project_id" do
+          allow(ENV).to receive(:[]).with('GOOGLE_CLOUD_PROJECT').and_return('env-project-123')
+          expect(::Google::Cloud::PubSub::Credentials).not_to receive(:new)
+          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'env-project-123').and_return(fake_pubsub)
+
+          Publisher.google_pubsub({})
+        end
+
+        it "handles nil config gracefully" do
+          allow(ENV).to receive(:[]).with('GOOGLE_CLOUD_PROJECT').and_return(nil)
+          expect(::Google::Cloud::PubSub::Credentials).not_to receive(:new)
+          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'cfr-projects').and_return(fake_pubsub)
+
+          Publisher.google_pubsub(nil)
+        end
+      end
+    end
   end
 end
