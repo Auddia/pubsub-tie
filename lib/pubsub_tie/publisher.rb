@@ -10,7 +10,7 @@ module PubSubTie
 
     def google_pubsub(config)
       keyfile_name = config && config['keyfile']
-      project_id = (config && config['project_id']) || ENV['GOOGLE_CLOUD_PROJECT'] || ENV['PUBSUB_PROJECT']
+      project_id = (config && config['project_id']) || ENV['PUBSUB_PROJECT'] || ENV['GOOGLE_CLOUD_PROJECT']
 
       kwargs = {}
       kwargs[:project_id] = project_id if project_id
