@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module PubSubTie
   RSpec.describe Publisher do
-    let(:pubconf) { {'project' => 'proj', 'keyfile' => 'kf.json'} }
+    let(:pubconf) { {'project_id' => 'proj', 'keyfile' => 'kf.json'} }
     let(:config) { {'app_prefix' => 'test',
                     'events' =>[{
                       'name' =>'event_zero',
@@ -124,26 +124,27 @@ module PubSubTie
     describe ".google_pubsub" do
       before do
         allow(PubSubTie::Publisher).to receive(:google_pubsub).and_call_original
+        allow(ENV).to receive(:[]).and_call_original
       end
 
       context "when keyfile is specified and non-empty" do
-        let(:config_with_keyfile) { { 'project_id' => 'my-proj', 'keyfile' => 'service-account.json' } }
         let(:fake_creds) { double('Credentials') }
 
-        it "initializes PubSub with explicit credentials from keyfile" do
+        it "initializes PubSub with explicit credentials from relative keyfile path" do
+          config = { 'project_id' => 'my-proj', 'keyfile' => 'service-account.json' }
           expected_path = File.join(PubSubTie.app_root, 'config', 'service-account.json')
           expect(::Google::Cloud::PubSub::Credentials).to receive(:new).with(expected_path).and_return(fake_creds)
           expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'my-proj', credentials: fake_creds)
 
-          Publisher.google_pubsub(config_with_keyfile)
+          Publisher.google_pubsub(config)
         end
 
-        it "accepts project key as fallback for project_id" do
-          expected_path = File.join(PubSubTie.app_root, 'config', 'service-account.json')
-          expect(::Google::Cloud::PubSub::Credentials).to receive(:new).with(expected_path).and_return(fake_creds)
-          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'legacy-proj', credentials: fake_creds)
+        it "initializes PubSub with explicit credentials from absolute keyfile path" do
+          config = { 'project_id' => 'my-proj', 'keyfile' => '/secrets/gcp/key.json' }
+          expect(::Google::Cloud::PubSub::Credentials).to receive(:new).with('/secrets/gcp/key.json').and_return(fake_creds)
+          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'my-proj', credentials: fake_creds)
 
-          Publisher.google_pubsub({ 'project' => 'legacy-proj', 'keyfile' => 'service-account.json' })
+          Publisher.google_pubsub(config)
         end
       end
 
@@ -171,26 +172,38 @@ module PubSubTie
           Publisher.google_pubsub({ 'project_id' => 'my-proj' })
         end
 
-        it "falls back to 'cfr-projects' if project_id is not in config and ENV is not set" do
-          allow(ENV).to receive(:[]).with('GOOGLE_CLOUD_PROJECT').and_return(nil)
-          expect(::Google::Cloud::PubSub::Credentials).not_to receive(:new)
-          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'cfr-projects').and_return(fake_pubsub)
-
-          Publisher.google_pubsub({})
-        end
-
         it "uses ENV['GOOGLE_CLOUD_PROJECT'] if set and config has no project_id" do
           allow(ENV).to receive(:[]).with('GOOGLE_CLOUD_PROJECT').and_return('env-project-123')
+          allow(ENV).to receive(:[]).with('PUBSUB_PROJECT').and_return(nil)
           expect(::Google::Cloud::PubSub::Credentials).not_to receive(:new)
           expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'env-project-123').and_return(fake_pubsub)
 
           Publisher.google_pubsub({})
         end
 
-        it "handles nil config gracefully" do
+        it "uses ENV['PUBSUB_PROJECT'] if set and GOOGLE_CLOUD_PROJECT is not set" do
           allow(ENV).to receive(:[]).with('GOOGLE_CLOUD_PROJECT').and_return(nil)
+          allow(ENV).to receive(:[]).with('PUBSUB_PROJECT').and_return('pubsub-env-project')
           expect(::Google::Cloud::PubSub::Credentials).not_to receive(:new)
-          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'cfr-projects').and_return(fake_pubsub)
+          expect(::Google::Cloud::PubSub).to receive(:new).with(project_id: 'pubsub-env-project').and_return(fake_pubsub)
+
+          Publisher.google_pubsub({})
+        end
+
+        it "does not pass project_id or default to prod when project_id and ENV are not provided" do
+          allow(ENV).to receive(:[]).with('GOOGLE_CLOUD_PROJECT').and_return(nil)
+          allow(ENV).to receive(:[]).with('PUBSUB_PROJECT').and_return(nil)
+          expect(::Google::Cloud::PubSub::Credentials).not_to receive(:new)
+          expect(::Google::Cloud::PubSub).to receive(:new).with(no_args).and_return(fake_pubsub)
+
+          Publisher.google_pubsub({})
+        end
+
+        it "handles nil config gracefully without defaulting to prod" do
+          allow(ENV).to receive(:[]).with('GOOGLE_CLOUD_PROJECT').and_return(nil)
+          allow(ENV).to receive(:[]).with('PUBSUB_PROJECT').and_return(nil)
+          expect(::Google::Cloud::PubSub::Credentials).not_to receive(:new)
+          expect(::Google::Cloud::PubSub).to receive(:new).with(no_args).and_return(fake_pubsub)
 
           Publisher.google_pubsub(nil)
         end
