@@ -9,11 +9,18 @@ module PubSubTie
     end
 
     def google_pubsub(config)
-      keyfile = File.join(PubSubTie.app_root, 'config', config['keyfile'])
-      creds = Google::Cloud::PubSub::Credentials.new keyfile
+      keyfile_name = config && config['keyfile']
+      project_id = (config && config['project_id']) || ENV['PUBSUB_PROJECT'] || ENV['GOOGLE_CLOUD_PROJECT']
 
-      Google::Cloud::PubSub.new(project_id: config['project_id'],
-                                credentials: creds)
+      kwargs = {}
+      kwargs[:project_id] = project_id if project_id
+
+      if keyfile_name && !keyfile_name.to_s.strip.empty?
+        keyfile = File.expand_path(keyfile_name, File.join(PubSubTie.app_root, 'config'))
+        kwargs[:credentials] = ::Google::Cloud::PubSub::Credentials.new(keyfile)
+      end
+
+      ::Google::Cloud::PubSub.new(**kwargs)
     end
 
     # 
