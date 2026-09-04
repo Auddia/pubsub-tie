@@ -1,4 +1,5 @@
 require 'google/cloud/pubsub'
+require 'securerandom'
 
 module PubSubTie
   module Publisher
@@ -81,8 +82,11 @@ module PubSubTie
     end
 
     def augmented(data, event_sym)
-      {event_name: Events.name(event_sym), 
-       event_time: Time.current.utc}.merge(data.to_hash.to_options)
+      hash_data = data.to_hash.to_options
+      event_id = hash_data[:event_id] || hash_data['event_id'] || SecureRandom.uuid
+      {event_id: event_id,
+       event_name: Events.name(event_sym), 
+       event_time: Time.current.utc}.merge(hash_data)
     end
 
     def validate_types(sym, data)
