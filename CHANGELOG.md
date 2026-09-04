@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.0] - 2026-09-04
+
+### Added
+- Native support for a root-level `common:` block in event schema configurations. Global fields defined in `common:` (such as `event_id`, `event_name`, and `event_time`) are automatically inherited by every event, allowing publishers to remove redundant field definitions.
+- Automatic generation of a standard, client-side `event_id` UUID v4 on publish if omitted by the caller.
+- Robust validation fallback that automatically generates a secure UUID even if the caller explicitly supplies a `nil` or blank `event_id` parameter.
+
 ## [1.5.0] - 2026-08-27
 
 ### Added
