@@ -209,5 +209,55 @@ module PubSubTie
         end
       end
     end
+
+    describe "with root-level common fields and auto event_id generation" do
+      let(:common_config) { {
+        'app_prefix' => 'test',
+        'common' => [
+          {'name' => 'event_id', 'type' => 'STRING', 'mode' => 'REQUIRED'},
+          {'name' => 'event_name', 'type' => 'STRING', 'mode' => 'REQUIRED'},
+          {'name' => 'event_time', 'type' => 'TIMESTAMP', 'mode' => 'REQUIRED'}
+        ],
+        'events' => [{
+          'name' => 'event_one',
+          'required' => [{'name' => 'req1', 'type' => 'INT'}]
+        }]
+      } }
+
+      before(:each) do
+        Events.configure(common_config)
+      end
+
+      it "automatically inherits common fields and auto-generates event_id" do
+        expect(Events.required(:event_one)).to include(:event_id, :event_name, :event_time)
+
+        expect(PubSubTie::Google::PubSub::Topic).to receive(:publish_async) do |payload_json, _|
+          payload = JSON.parse(payload_json)
+          expect(payload['req1']).to eq(1)
+          expect(payload['event_name']).to eq('event_one')
+          expect(payload['event_id']).to match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+        end
+
+        Publisher.publish(:event_one, {req1: 1}, nil)
+      end
+
+      it "preserves caller-supplied event_id" do
+        expect(PubSubTie::Google::PubSub::Topic).to receive(:publish_async) do |payload_json, _|
+          payload = JSON.parse(payload_json)
+          expect(payload['event_id']).to eq('custom-caller-id-123')
+        end
+
+        Publisher.publish(:event_one, {req1: 1, event_id: 'custom-caller-id-123'}, nil)
+      end
+
+      it "handles explicit nil event_id by generating a fallback UUID" do
+        expect(PubSubTie::Google::PubSub::Topic).to receive(:publish_async) do |payload_json, _|
+          payload = JSON.parse(payload_json)
+          expect(payload['event_id']).to match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+        end
+
+        Publisher.publish(:event_one, {req1: 1, event_id: nil}, nil)
+      end
+    end
   end
 end

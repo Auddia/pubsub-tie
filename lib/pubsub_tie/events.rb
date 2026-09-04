@@ -4,10 +4,20 @@ module PubSubTie
 
     def configure(config)
       @prefix = config['app_prefix']
+      common_fields = config['common'] || []
 
       evs = config['events'].map{|e| e['name']}
       @events = Hash[evs.map(&:to_sym).zip(config['events'])]
       @events.each do |k, evt|
+        # Inject root-level common fields into each event's definitions
+        common_fields.each do |cf|
+          mode_key = cf['mode'] == 'REQUIRED' ? 'required' : 'optional'
+          evt[mode_key] ||= []
+          unless evt[mode_key].any? { |field| field['name'] == cf['name'] }
+            evt[mode_key] << cf
+          end
+        end
+
         fields = (evt['required'] || []) + 
             (evt['optional'] || []) +
             (evt['repeated'] || [])

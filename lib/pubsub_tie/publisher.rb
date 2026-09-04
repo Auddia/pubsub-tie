@@ -83,10 +83,10 @@ module PubSubTie
 
     def augmented(data, event_sym)
       hash_data = data.to_hash.to_options
-      event_id = hash_data[:event_id] || hash_data['event_id'] || SecureRandom.uuid
-      {event_id: event_id,
-       event_name: Events.name(event_sym), 
-       event_time: Time.current.utc}.merge(hash_data)
+      user_id = hash_data[:event_id]
+      event_id = (user_id && !user_id.to_s.strip.empty?) ? user_id : SecureRandom.uuid
+      {event_name: Events.name(event_sym), 
+       event_time: Time.current.utc}.merge(hash_data).merge(event_id: event_id)
     end
 
     def validate_types(sym, data)
