@@ -27,13 +27,21 @@ module PubSubTie
   end
 
   def configure_publisher
-    config = YAML.load_file(File.join(app_root, 'config', 'gcp.yml'), aliases: true)[env]
+    config = load_yaml_file(File.join(app_root, 'config', 'gcp.yml'))[env]
     Publisher.configure(config)
   end
 
   def configure_events
-    config = YAML.load_file(File.join(app_root, 'config', 'events.yml'), aliases: true)[env]
+    config = load_yaml_file(File.join(app_root, 'config', 'events.yml'))[env]
     Events.configure(config)
+  end
+
+  def load_yaml_file(file_path)
+    if defined?(Psych::VERSION) && Gem::Version.new(Psych::VERSION) >= Gem::Version.new('4.0.0')
+      YAML.load_file(file_path, aliases: true)
+    else
+      YAML.load_file(file_path)
+    end
   end
 
   def publish(topic, data, resource: nil)
