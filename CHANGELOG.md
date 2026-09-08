@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2026-09-04
+
+### Fixed
+- Fixed backward compatibility for YAML configuration loading under Psych 3 (Ruby 2.7). The `aliases: true` keyword parameter is now conditionally passed only when Psych 4+ (Ruby 3.1+) is present, preventing `ArgumentError: unknown keyword: :aliases` during Railtie initialization on older Ruby runtimes.
+
 ## [1.6.0] - 2026-09-04
 
 ### Added
